@@ -85,8 +85,6 @@ function ask_directory(){
   read -e -p "${1}" DIRECTORY
 
   if [ ! -d "$DIRECTORY" ]; then
-    echo "The given directoy does not exists"
-
     answer=$(ask_confirmation "Directory does not exists. Do you want to create it?")
 
     if [ $answer == "Y" ]; then
@@ -100,7 +98,15 @@ function ask_directory(){
 }
 
 function create_directory(){
-   mkdir $1
+  mkdir $1
+}
+
+function create_file(){
+  touch $1
+}
+
+function write_file(){
+  echo $2 > $1
 }
 
 # BEGIN SCRIPT
@@ -114,7 +120,7 @@ read_directory "${_mydir}"
 # Check if there are any bootstrap projects found
 bootstraps_found "${_mydir}"
 
-# Ask the user to chose a boostrap project
+# Ask the user to chose a bootstrap project
 CONFIRMED_PROJECT=$(choose_project)
 
 # Ask the user if the current path is the correct project path
@@ -126,4 +132,11 @@ if [ $answer == "N" ]; then
     BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
 
-cp -a ${BOOTSTRAP_DIR}/strapps/${CONFIRMED_PROJECT}/. $BOOTSTRAP_PROJECT_PATH
+# Copy the bootstrap project file to the given project directory
+cp -r ${BOOTSTRAP_DIR%/}/strapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
+
+# Create strappy file
+create_file $BOOTSTRAP_PROJECT_PATH/.strappy
+
+# Write the bootstrap project into the strappy file
+write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}strapps/${CONFIRMED_PROJECT}

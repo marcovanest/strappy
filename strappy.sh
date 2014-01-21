@@ -1,5 +1,7 @@
 #!/bin/sh
 
+NEWLINE=$'\n'
+
 # Get working directory
 OLDIFS=$IFS
 IFS=$'\n'
@@ -51,14 +53,12 @@ function choose_project(){
   do
     # Ask the user if he/she is sure with the choice
     answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
-    if [ $answer == "Y" ]
-      then # If confirmed than set choice
+    if [ $answer == "Y" ]; then # If confirmed than set choice
         echo ${opt}
       else # Ask the user if he/she want to bootstrap another project
         answer=$(ask_confirmation "Do you want to bootstrap another project")
-        if [ $answer == "Y" ]
-          then
-            choose_project
+        if [ $answer == "Y" ]; then
+           choose_project
           else
            echo "Nothing to do here..."
            exit
@@ -85,15 +85,23 @@ function ask_directory(){
   read -e -p "${1}" DIRECTORY
 
   if [ ! -d "$DIRECTORY" ]; then
-    echo "[notice] - The given directoy does not exists"
-    ask_directory "${1}"
-    exit;
+    echo "The given directoy does not exists"
+
+    answer=$(ask_confirmation "Directory does not exists. Do you want to create it?")
+
+    if [ $answer == "Y" ]; then
+      create_directory "$DIRECTORY"
+    else
+       ask_directory "${1}"
+    fi
   fi
 
   echo $DIRECTORY
 }
 
-
+function create_directory(){
+   mkdir $1
+}
 
 # BEGIN SCRIPT
 
@@ -110,15 +118,12 @@ bootstraps_found "${_mydir}"
 CONFIRMED_PROJECT=$(choose_project)
 
 # Ask the user if the current path is the correct project path
-answer=$(ask_confirmation "Do you want to bootstrap at the current path? \n Location: ${_mydir}")
+answer=$(ask_confirmation "Do you want to bootstrap at the current path?${NEWLINE}Location: ${_mydir}")
 
-if [ $answer == "N" ]
-  then
+if [ $answer == "N" ]; then
     BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
   else
     BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
 
-answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
-
-
+cp -a ${BOOTSTRAP_DIR}/strapps/${CONFIRMED_PROJECT}/. $BOOTSTRAP_PROJECT_PATH

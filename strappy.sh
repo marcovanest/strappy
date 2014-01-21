@@ -109,6 +109,10 @@ function write_file(){
   echo $2 > $1
 }
 
+function change_directory(){
+  cd $1
+}
+
 # BEGIN SCRIPT
 
 PROJECTS=()
@@ -127,16 +131,38 @@ CONFIRMED_PROJECT=$(choose_project)
 answer=$(ask_confirmation "Do you want to bootstrap at the current path?${NEWLINE}Location: ${_mydir}")
 
 if [ $answer == "N" ]; then
-    BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
-  else
-    BOOTSTRAP_PROJECT_PATH=${_mydir}
+  BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
+else
+  BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
 
-# Copy the bootstrap project file to the given project directory
-cp -r ${BOOTSTRAP_DIR%/}/strapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
+# Check if the bootstrapped project is a vagrant project
+if [ -f "${BOOTSTRAP_PROJECT_PATH}/.strappy" ]; then
+  echo "Strappy found"
+else
+  # Copy the bootstrap project file to the given project directory
+  cp -r ${BOOTSTRAP_DIR%/}/strapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
 
-# Create strappy file
-create_file $BOOTSTRAP_PROJECT_PATH/.strappy
+  # Create strappy file, this file will be used to check if a directory already is bootstrapped by strappy
+  create_file $BOOTSTRAP_PROJECT_PATH/.strappy
 
-# Write the bootstrap project into the strappy file
-write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}strapps/${CONFIRMED_PROJECT}
+  # Write the bootstrap project into the strappy file
+  write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}strapps/${CONFIRMED_PROJECT}
+fi
+
+# Change directory to the project dir
+change_directory ${BOOTSTRAP_PROJECT_PATH}
+
+# Check if the bootstrapped project is a vagrant project
+if [ -f "Vagrantfile" ]; then
+
+  # Ask the user if the current path is the correct project path
+  answer=$(ask_confirmation "Vagrantfile found. Do you want to initialize?")
+
+  if [ $answer == "Y" ]; then
+    vagrant up
+  fi
+
+else
+  echo "Vagrantfile not found"
+fi

@@ -8,7 +8,7 @@ function bootstrap_project(){
 
   # Ask the user which bootstrap project must be initialized
   PS3='Please enter your bootstrap project: '
-  select opt in "${project[@]}"
+  select opt in "${PROJECTS[@]}"
   do
     # Ask the user if he/she is sure with the choice
     anwser=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
@@ -74,15 +74,21 @@ else
     fi
 fi
 
-project=()
+PROJECTS=()
+
+# http://www.cyberciti.biz/tips/handling-filenames-with-spaces-in-bash.html
+OLDIFS=$IFS
+IFS=$'\n'
 # Read project directories into array
-for file in "${BOOTSTRAP_DIR}*"
-  do
-  if [ -d "$file" ];then
-    project+=($file)
-    echo ${file}
+for file in ${BOOTSTRAP_DIR}*; do
+  if [ -d "${file}" ];then
+    PROJECTS+=($(basename "${file}"))
   fi
 done
+IFS=$OLDIFS
+
+
+bootstrap_project
 
 # Ask the user if the current location is the desired bootstrap path
 #anwser=$(ask_confirmation "Do you want to bootstrap at the current location? \n Location: ${_mydir}")

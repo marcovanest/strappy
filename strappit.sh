@@ -6,9 +6,44 @@ IFS=$'\n'
 _mydir="$(pwd)"
 IFS=$OLDIFS
 
-function choose_bootstrap_project(){
+function read_directory(){
 
-  choice=''
+  # http://www.cyberciti.biz/tips/handling-filenames-with-spaces-in-bash.html
+  OLDIFS=$IFS
+  IFS=$'\n'
+
+  DIR="${1%/}/strapps"
+  if [ -d $DIR ]; then
+    # Read project directories into array
+    for file in ${DIR}/*; do
+      if [ -d "${file}" ];then
+        PROJECTS+=($(basename "${file}"))
+      fi
+    done
+  fi
+
+  IFS=$OLDIFS
+}
+
+function bootstraps_found(){
+  if [ $PROJECTS ]; then
+    BOOTSTRAP_DIR=$1
+  else
+    echo "No bootstrap projects found"
+    anwser=$(ask_confirmation "Do you want to specify a directory with bootstrap projects?")
+    if [ $anwser == "Y" ]; then
+      BOOTSTRAP_DIR=$(ask_directory "Please enter your bootstrap directory: ")
+
+      read_directory "${BOOTSTRAP_DIR}"
+      bootstraps_found "${BOOTSTRAP_DIR}"
+    else
+      echo "Sadly no one want to play with me :("
+      exit;
+    fi
+  fi
+}
+
+function choose_project(){
 
   # Ask the user which bootstrap project must be initialized
   PS3='Please enter your bootstrap project: '
@@ -23,7 +58,7 @@ function choose_bootstrap_project(){
         anwser=$(ask_confirmation "Do you want to bootstrap another project")
         if [ $anwser == "Y" ]
           then
-            choose_bootstrap_project
+            choose_project
           else
            echo "Nothing to do here..."
            exit
@@ -31,22 +66,6 @@ function choose_bootstrap_project(){
     fi
     break;
   done
-}
-
-function read_bootstrap_directory(){
-
-  # http://www.cyberciti.biz/tips/handling-filenames-with-spaces-in-bash.html
-  OLDIFS=$IFS
-  IFS=$'\n'
-
-  # Read project directories into array
-  for file in ${1}/*; do
-    if [ -d "${file}" ];then
-      PROJECTS+=($(basename "${file}"))
-    fi
-  done
-
-  IFS=$OLDIFS
 }
 
 function ask_confirmation(){
@@ -74,30 +93,21 @@ function ask_directory(){
   echo $DIRECTORY
 }
 
-PROJECTS=()
+
 
 # BEGIN SCRIPT
-read_bootstrap_directory "${_mydir}"
 
-# Check if there is a bootstrap directory at the current working directory
-if [ $PROJECTS ]; then
-    BOOTSTRAP_DIR=${_mydir}
-else
-    echo "[notice] - No bootstrap directories found at current working directory"
-    anwser=$(ask_confirmation "Do you want to specify a directory with bootstrap projects?")
-    if [ $anwser == "Y" ]
-      then
-        # Ask the user to specify the bootstrap directory
-        BOOTSTRAP_DIR=$(ask_directory "Please enter your bootstrap directory: ")
-        read_bootstrap_directory "${BOOTSTRAP_DIR}"
-      else
-        echo "[notice] - Sadly no one want to play with me :("
-        exit;
-    fi
-fi
+PROJECTS=()
+BOOTSTRAP_DIR=''
 
-# Store the confirmed project
-CONFIRMED_PROJECT=$(choose_bootstrap_project)
+# Check the current working directory for bootstrap projects
+read_directory "${_mydir}"
+
+# Check if there are any bootstrap projects found
+bootstraps_found "${_mydir}"
+
+# Ask the user to chose a boostrap project
+CONFIRMED_PROJECT=$(choose_project)
 
 # Ask the user if the current path is the correct project path
 anwser=$(ask_confirmation "Do you want to bootstrap at the current path? \n Location: ${_mydir}")
@@ -108,4 +118,5 @@ if [ $anwser == "N" ]
   else
     BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
+
 

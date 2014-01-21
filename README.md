@@ -1,1 +1,1 @@
-ln -s /Users/marcovanest/Projects/StrappIT/strappit.sh /usr/local/bin/strappit
+ln -s /Users/{USER}/Projects/Strappy/strappy.sh /usr/local/bin/strappy

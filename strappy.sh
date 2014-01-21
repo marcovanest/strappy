@@ -30,8 +30,8 @@ function bootstraps_found(){
     BOOTSTRAP_DIR=$1
   else
     echo "No bootstrap projects found"
-    anwser=$(ask_confirmation "Do you want to specify a directory with bootstrap projects?")
-    if [ $anwser == "Y" ]; then
+    answer=$(ask_confirmation "Do you want to specify a directory with bootstrap projects?")
+    if [ $answer == "Y" ]; then
       BOOTSTRAP_DIR=$(ask_directory "Please enter your bootstrap directory: ")
 
       read_directory "${BOOTSTRAP_DIR}"
@@ -50,13 +50,13 @@ function choose_project(){
   select opt in "${PROJECTS[@]}"
   do
     # Ask the user if he/she is sure with the choice
-    anwser=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
-    if [ $anwser == "Y" ]
+    answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
+    if [ $answer == "Y" ]
       then # If confirmed than set choice
         echo ${opt}
       else # Ask the user if he/she want to bootstrap another project
-        anwser=$(ask_confirmation "Do you want to bootstrap another project")
-        if [ $anwser == "Y" ]
+        answer=$(ask_confirmation "Do you want to bootstrap another project")
+        if [ $answer == "Y" ]
           then
             choose_project
           else
@@ -110,13 +110,15 @@ bootstraps_found "${_mydir}"
 CONFIRMED_PROJECT=$(choose_project)
 
 # Ask the user if the current path is the correct project path
-anwser=$(ask_confirmation "Do you want to bootstrap at the current path? \n Location: ${_mydir}")
+answer=$(ask_confirmation "Do you want to bootstrap at the current path? \n Location: ${_mydir}")
 
-if [ $anwser == "N" ]
+if [ $answer == "N" ]
   then
     BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
   else
     BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
+
+answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
 
 

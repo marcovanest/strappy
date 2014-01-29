@@ -189,8 +189,9 @@ if [ $VAGRANT_PRESENT == "Y" ]; then
     search_file 'module_path' $file
     for MODULE_PATH in $RESULTS; do
       if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MODULE_PATH" ]; then
-        echo $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
         create_directory $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
+
+        echo "Module path ${BOOTSTRAP_PROJECT_PATH}/${MODULE_PATH} created"
       fi
     done
 
@@ -201,17 +202,22 @@ if [ $VAGRANT_PRESENT == "Y" ]; then
     for MANIFEST_PATH in $RESULTS; do
       if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH" ]; then
         create_directory $BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH
+
+        echo "Manifest path ${BOOTSTRAP_PROJECT_PATH}/${MANIFEST_PATH} created"
       fi
     done
+
+    MANIFEST_PATH=$RESULTS
 
     # Search the Vagrantfile for manifests files and check if they exist, if not create them
     unset RESULTS
     RESULTS=()
     search_file 'manifest_file' $file
     for MANIFEST_FILE in $RESULTS; do
-      MANIFEST_FILE_PATH=$MANIFESTS_PATH/$MANIFEST_FILE
-      if [ ! -f "$MANIFEST_FILE_PATH" ]; then
-        create_file $MANIFEST_FILE_PATH
+      if [ ! -f "$MANIFEST_PATH/$MANIFEST_FILE" ]; then
+        create_file $MANIFEST_PATH/$MANIFEST_FILE
+
+        echo "Manifest file ${MANIFEST_PATH}/${MANIFEST_FILE} created"
       fi
     done
 

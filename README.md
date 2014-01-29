@@ -23,20 +23,13 @@ Second step is creating a Vagrant bootstrap project folder on your system. It do
 
 E.g.
 
-\Strappy bootstraps
-
-  \strapps
-
-    \Project 1
-
-      Vagrantfile
-
-    \Project 2
-
-      Vagrantfile
-
-    \Project 3
-
-      Vagrantfile
+    \Strappy bootstraps
+      \strapps
+        \Project 1
+          Vagrantfile
+        \Project 2
+          Vagrantfile
+        \Project 3
+          Vagrantfile
 
 

@@ -68,6 +68,12 @@ function choose_project(){
   done
 }
 
+function search_file(){
+  while read result; do
+    RESULTS+=(`echo ${result##*=} | sed 's/^"\(.*\)"$/\1/'`)
+  done <<< `grep $1 $2`
+}
+
 function ask_confirmation(){
   read -p "${1} - Y/n? " ans
 
@@ -98,11 +104,11 @@ function ask_directory(){
 }
 
 function create_directory(){
-  mkdir $1
+  /bin/mkdir -p $1
 }
 
 function create_file(){
-  touch $1
+  /usr/bin/touch $1
 }
 
 function write_file(){
@@ -130,13 +136,13 @@ CONFIRMED_PROJECT=$(choose_project)
 # Ask the user if the current path is the correct project path
 answer=$(ask_confirmation "Do you want to bootstrap at the current path?${NEWLINE}Location: ${_mydir}")
 
-if [ $answer == "N" ]; then
+if [ $answer == "N" ]; then # If the user does not want to bootstrap at the current path, ask for another
   BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
 else
   BOOTSTRAP_PROJECT_PATH=${_mydir}
 fi
 
-# Check if the bootstrapped project is a vagrant project
+# Check if the directory is already bootstrapped by strappy
 if [ -f "${BOOTSTRAP_PROJECT_PATH}/.strappy" ]; then
   echo "Strappy found"
 else
@@ -156,13 +162,58 @@ change_directory ${BOOTSTRAP_PROJECT_PATH}
 # Check if the bootstrapped project is a vagrant project
 if [ -f "Vagrantfile" ]; then
 
-  # Ask the user if the current path is the correct project path
-  answer=$(ask_confirmation "Vagrantfile found. Do you want to initialize?")
+  # Ask the user to vagrant up or not
+  answer=$(ask_confirmation "Vagrantfile found. Do you want to vagrant up?")
 
   if [ $answer == "Y" ]; then
     vagrant up
   fi
 
+  VAGRANT_PRESENT="Y"
+
 else
-  echo "Vagrantfile not found"
+  VAGRANT_PRESENT="N"
+fi
+
+# Check if Vagrantfile is present
+if [ $VAGRANT_PRESENT == "Y" ]; then
+
+  # Extract the defined machine blocks into temporary files, so they can parsed separately
+  `awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0}' Vagrantfile`
+
+  for file in $(find . -type f -name 'block*' -exec basename {} \;) ; do
+
+    # Search the Vagrantfile for module dirs and check if they exist, if not create them
+    unset RESULTS
+    RESULTS=()
+    search_file 'module_path' $file
+    for MODULE_PATH in $RESULTS; do
+      if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MODULE_PATH" ]; then
+        echo $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
+        create_directory $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
+      fi
+    done
+
+    # Search the Vagrantfile for manifests dirs and check if they exist, if not create them
+    unset RESULTS
+    RESULTS=()
+    search_file 'manifests_path' $file
+    for MANIFEST_PATH in $RESULTS; do
+      if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH" ]; then
+        create_directory $BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH
+      fi
+    done
+
+    # Search the Vagrantfile for manifests files and check if they exist, if not create them
+    unset RESULTS
+    RESULTS=()
+    search_file 'manifest_file' $file
+    for MANIFEST_FILE in $RESULTS; do
+      MANIFEST_FILE_PATH=$MANIFESTS_PATH/$MANIFEST_FILE
+      if [ ! -f "$MANIFEST_FILE_PATH" ]; then
+        create_file $MANIFEST_FILE_PATH
+      fi
+    done
+
+  done
 fi

@@ -1,5 +1,9 @@
 # Strappy - Vagrant project bootstrapper
 
+## Important
+
+Strappy has not reached a stable release. There is much to be done and furthermore I only tested it on OSX 10.9.1.
+
 ## Why
 
 I wrote this shell script because I got tired of copy pasting Vagrantfile configurations, making provisioning directory’s etc… I’m currently working on multiple projects and I noticed that it took me some time (not much but enough ;) ) to set-up a Vagrant development workflow.
@@ -16,3 +20,4 @@ First of all download the strappy.sh file and place it in a directory of your ch
 Then make it executable by running chmod u+x strappy.sh
 
 Second step is creating a Vagrant bootstrap project folder on your system. It doesn’t matter where it is located, because Strappy will ask for it anyhow. Make sure you create a „strapps” folder within it. Inside this folder you will have to place all your Vagrant bootstrap projects.
+

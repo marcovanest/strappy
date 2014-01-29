@@ -241,7 +241,7 @@ if [ $GIT -eq 0 ]; then
 
     # Check if the git repository is correctly initialized
     SUCCES=$?
-    if [ $GIT -eq 0 ]; then
+    if [ $SUCCES -eq 0 ]; then
       echo "Initialized empty Git repository"
     fi
   fi

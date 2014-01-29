@@ -21,3 +21,14 @@ Then make it executable by running chmod u+x strappy.sh
 
 Second step is creating a Vagrant bootstrap project folder on your system. It doesn’t matter where it is located, because Strappy will ask for it anyhow. Make sure you create a „strapps” folder within it. Inside this folder you will have to place all your Vagrant bootstrap projects.
 
+E.g.
+
+\Strappy bootstraps
+  \strapps
+    \Project 1
+      Vagrantfile
+    \Project 2
+      Vagrantfile
+    \Project 3
+      Vagrantfile
+

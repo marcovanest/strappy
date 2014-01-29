@@ -84,6 +84,9 @@ function ask_confirmation(){
     "N"|"n"|"no"|"No")
       echo "N"
       break ;;
+    *)
+      ask_confirmation "${1}"
+      break ;;
   esac
 }
 
@@ -222,4 +225,24 @@ if [ $VAGRANT_PRESENT == "Y" ]; then
     done
 
   done
+fi
+
+echo "Done with parsing Vagrantfile"
+
+# Check if git is installed
+git --version 2>&1 >/dev/null
+GIT=$?
+
+if [ $GIT -eq 0 ]; then
+  # Ask the user to create a git repository
+  answer=$(ask_confirmation "Do you want to create a git repository")
+  if [ $answer == "Y" ]; then
+    git init 2>&1 >/dev/null;
+
+    # Check if the git repository is correctly initialized
+    SUCCES=$?
+    if [ $GIT -eq 0 ]; then
+      echo "Initialized empty Git repository"
+    fi
+  fi
 fi

@@ -8,6 +8,8 @@ Strappy has not reached a stable release. There is much to be done and furthermo
 
 I wrote this shell script because I got tired of copy pasting Vagrantfile configurations, making provisioning directory’s etc… I’m currently working on multiple projects and I noticed that it took me some time (not much but enough ;) ) to set-up a Vagrant development workflow.
 
+Another big reason for writing this script is that all my bootstrap projects are under version control. If I clone them I have to manually remove the .git file because I don't want the bootstrap files under version control inside a working project. Next I've to cd into my shared folder and run git init. Last but not least is creating a .gitignore file for the specific files inside my project. I found these steps very boring and found the need to automate this. So Strappy was born...
+
 ## So how does it work?
 
 Strappy is a simple shell script that runs from the command line. What it basically does is scanning a pre-determined bootstrap directory for vagrant projects. If Strappy finds any projects inside the given strappy project directory it will ask the user to make a choice which bootstrap project s/he wants to bootstrap. During the bootstrapping Strappy will ask the user for some simple questions in order to determine what the user actually wants.

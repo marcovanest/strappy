@@ -122,14 +122,14 @@ function change_directory(){
 # Check if the Strappy config file exists, if not create it
 if [ ! -f ~/.strappy_config ]; then
   create_file ~/.strappy_config
-  write_file ~/.strappy_config "strappybootstrap_dir=\"\""
+  write_file ~/.strappy_config "strappybootstrap_dir="
   echo "Created the Strappy config file"
 fi
 
 source ~/.strappy_config
 
 # Check if there is a StrappyBootstrap directory present in the User folder, if not create it
-if [ $strappybootstrap_dir == "" ] && [ ! -d "$HOME/StrappyBootstrap" ]; then
+if [  -z "$strappybootstrap_dir" ]; then
   answer=$(ask_confirmation "Strappy did not found a StrappyBootstrap directory. Do you want to create one in your user dir?")
 
   if [ $answer == "Y" ]; then

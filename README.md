@@ -32,4 +32,29 @@ E.g.
         \Project 3
           Vagrantfile
 
+## Running it for the first time
 
+So let's run strappy for the first time!
+
+Start with the command
+
+     strappy
+
+Strappy creates a config file if it runs for the first time. The config file will be created inside the ~ folder
+
+     Created the Strappy config file
+     Strappy did not found a StrappyBootstrap directory. Do you want to create one in your user dir? - Y/n?
+
+Option 1) If you answer the above question with "yes" then a StrappyBootstrap directory will be created inside your home dir
+
+     StrappyBootstrap dir created at /Users/{username}/StrappyBootstrap
+     Created vagrantstrapps folder. This is the directory where you place all your bootstrap projects
+     No bootstrap projects found
+
+Option 2) If you answer the question with "no" then a strappy will ask the user to specify one
+
+     Do you want to create the StrappyBootstrap dir at another location? - Y/n?
+     Please enter the path: /User/{username}/Projects  <--- Just an example
+     StrappyBootstrap dir created at /Users/{name}/Projects/StrappyBootstrap
+     Created vagrantstrapps folder. This is the directory where you place all your bootstrap projects
+     No bootstrap projects found

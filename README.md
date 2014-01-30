@@ -40,7 +40,9 @@ Start with the command
 
      strappy
 
-Strappy creates a config file if it runs for the first time. The config file will be created inside the ~ folder
+A config file is created if Strappy runs for the first time. The file will be created inside the home folder. If you want to check it out just run cat ~/.strappy_config. It's nothing special and it only contains a key/value pair that contains the StrappyBootstrapp directory.
+
+This directory is exactly what Strappy wants to know if you run it the first time ever. So it will ask you for it
 
      Created the Strappy config file
      Strappy did not found a StrappyBootstrap directory. Do you want to create one in your user dir? - Y/n?
@@ -58,6 +60,8 @@ Option 2) If you answer the question with "no" then a strappy will ask the user 
      StrappyBootstrap dir created at /Users/{name}/Projects/StrappyBootstrap
      Created vagrantstrapps folder. This is the directory where you place all your bootstrap projects
      No bootstrap projects found
+
+Strappy will update config file with the directory chosen above. So the next time you run strappy you won't be asked again to create one. Instead it will directly list out the bootstrap projects for you that you have defined.
 
 Ok good, Strappy is almost set-up!. The next step is to add some bootstrap projects inside the vagrantstrapps folder.
 

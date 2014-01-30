@@ -29,19 +29,6 @@ The end result is a fully bootstrapped vagrant project within seconds!
 First of all download the strappy.sh file and place it in a directory of your choosing. I would recommend placing it inside the /usr/local/bin folder, mainly because it’s already defined in your PATH, so you can run it globally inside your system without constantly specifying the absolute path to it.
 Then make it executable by running chmod u+x strappy.sh
 
-Second step is creating a Vagrant bootstrap project folder on your system. It doesn’t matter where it is located, because Strappy will ask for it anyhow. Make sure you create a „strapps” folder within it. Inside this folder you will have to place all your Vagrant bootstrap projects.
-
-E.g.
-
-    \Strappy bootstraps
-      \strapps
-        \Project 1
-          Vagrantfile
-        \Project 2
-          Vagrantfile
-        \Project 3
-          Vagrantfile
-
 ## Running it for the first time
 
 So let's run strappy for the first time!

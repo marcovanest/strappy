@@ -19,7 +19,7 @@ function read_directory(){
     # Read project directories into array
     for file in ${DIR}/*; do
       if [ -d "${file}" ];then
-        PROJECTS+=($(basename "${file}"))
+        PROJECTS+=($(/usr/bin/basename "${file}"))
       fi
     done
   fi
@@ -65,8 +65,8 @@ function choose_project(){
 
 function search_file(){
   while read result; do
-    RESULTS+=(`echo ${result##*=} | sed 's/^"\(.*\)"$/\1/'`)
-  done <<< `grep $1 $2`
+    RESULTS+=(`echo ${result##*=} | /usr/bin/sed 's/^"\(.*\)"$/\1/'`)
+  done <<< `/usr/bin/grep $1 $2`
 }
 
 function ask_confirmation(){
@@ -94,7 +94,7 @@ function ask_directory(){
     if [ $answer == "Y" ]; then
       create_directory "$DIRECTORY"
     else
-       ask_directory "${1}"
+      ask_directory "${1}"
     fi
   fi
 
@@ -183,7 +183,8 @@ answer=$(ask_confirmation "Do you want to bootstrap at the current path?${NEWLIN
 if [ $answer == "N" ]; then # If the user does not want to bootstrap at the current path, ask for another
   BOOTSTRAP_PROJECT_PATH=$(ask_directory "Please enter your bootstrap project path: ")
 else
-  BOOTSTRAP_PROJECT_PATH=${_mydir}
+  PATH=$(ask_directory "Please enter the project name: ")
+  BOOTSTRAP_PROJECT_PATH=${_mydir}/$PATH
 fi
 
 # Check if the directory is already bootstrapped by strappy
@@ -191,7 +192,7 @@ if [ -f "${BOOTSTRAP_PROJECT_PATH}/.strappy" ]; then
   echo "Strappy found"
 else
   # Copy the bootstrap project file to the given project directory
-  cp -r ${BOOTSTRAP_DIR%/}/vagrantstrapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
+  /bin/cp -r ${BOOTSTRAP_DIR%/}/vagrantstrapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
 
   # Create strappy file, this file will be used to check if a directory already is bootstrapped by strappy
   create_file $BOOTSTRAP_PROJECT_PATH/.strappy
@@ -210,7 +211,7 @@ if [ -f "Vagrantfile" ]; then
   answer=$(ask_confirmation "Vagrantfile found. Do you want to vagrant up?")
 
   if [ $answer == "Y" ]; then
-    vagrant up
+    /usr/bin/vagrant up
   fi
 
   VAGRANT_PRESENT="Y"
@@ -223,9 +224,9 @@ fi
 if [ $VAGRANT_PRESENT == "Y" ]; then
 
   # Extract the defined machine blocks into temporary files, so they can parsed separately
-  `awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0}' Vagrantfile`
+  `/usr/bin/awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0}' Vagrantfile`
 
-  for file in $(find . -type f -name 'block*' -exec basename {} \;) ; do
+  for file in $(/usr/bin/find . -type f -name 'block*' -exec /usr/bin/basename {} \;) ; do
 
     # Search the Vagrantfile for module dirs and check if they exist, if not create them
     unset RESULTS
@@ -271,14 +272,14 @@ fi
 echo "Done with parsing Vagrantfile"
 
 # Check if git is installed
-git --version 2>&1 >/dev/null
+/usr/bin/git --version 2>&1 >/dev/null
 GIT=$?
 
 if [ $GIT -eq 0 ]; then
   # Ask the user to create a git repository
   answer=$(ask_confirmation "Do you want to create a git repository")
   if [ $answer == "Y" ]; then
-    git init 2>&1 >/dev/null;
+    /usr/bin/git init 2>&1 >/dev/null;
 
     # Check if the git repository is correctly initialized
     SUCCES=$?

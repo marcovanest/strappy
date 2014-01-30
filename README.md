@@ -58,3 +58,47 @@ Option 2) If you answer the question with "no" then a strappy will ask the user 
      StrappyBootstrap dir created at /Users/{name}/Projects/StrappyBootstrap
      Created vagrantstrapps folder. This is the directory where you place all your bootstrap projects
      No bootstrap projects found
+
+Ok good, Strappy is almost set-up!. The next step is to add some bootstrap projects inside the vagrantstrapps folder.
+
+     cd /User/{username}/StrappyBootstrap/vagrantstrapps
+     OR
+     cd /User/{username}/Projects/StrappyBootstrap/vagrantstrapps <--- Custom path if you choose for that
+     git clone https://github.com/marcovanest/bootstrap_dev_env.git <-- Just an example you could also copy a existing project from your harddrive into it
+
+Now you have defined your first bootstrap project it's time to strap it for a new project.
+
+     strappy
+
+Strappy will now show you a option list with your bootstrap project as an option.
+
+    1) Awesome_Bootstrap_project
+    Please enter your bootstrap project: 1
+
+Select the desired project and hit enter. The next question is one to make really sure
+
+    Are you sure you want to bootstrap project Awesome_Bootstrap_project - Y/n?
+
+If you're not sure enter "no" and you will return to the previous question. If you are sure enter "yes"
+
+    Do you want to bootstrap at the current path?
+    Location: /Users/marcovanest/Projects/MyAweSomeProject/bootstrap_dev_env - Y/n?
+
+Option 1) By entering "yes" Strappy will bootstrap the project in the current folder path. There will be an additional question where you must enter the project name
+
+    Please enter the project name: GeekApp
+
+Option 2) If you enter "no" you must enter the full path to the desired project folder, including the project name
+
+    Please enter your bootstrap project path: /Users/{username}/Projects/Test/Awesome
+
+Hit enter when you're done. Strappy will ask you the following question. If you're not sure enter "no" and you will return to the previous question.
+
+    Directory does not exists. Do you want to create it? - Y/n?
+
+Enter "yes" if you want to create. Strappy will parse the Vagrantfile and will ask you to create a git repository
+
+    Done with parsing Vagrantfile
+    Do you want to create a git repository - Y/n?
+
+After this you're done and ready to go!

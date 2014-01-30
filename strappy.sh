@@ -42,18 +42,22 @@ function choose_project(){
   PS3='Please enter your bootstrap project: '
   select opt in "${PROJECTS[@]}"
   do
-    # Ask the user if he/she is sure with the choice
-    answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
-    if [ $answer == "Y" ]; then # If confirmed than set choice
-        echo ${opt}
+    if [ -n "$opt" ]; then
+      # Ask the user if he/she is sure with the choice
+      answer=$(ask_confirmation "Are you sure you want to bootstrap project ${opt}")
+      if [ $answer == "Y" ]; then # If confirmed than set choice
+          echo ${opt}
       else # Ask the user if he/she want to bootstrap another project
         answer=$(ask_confirmation "Do you want to bootstrap another project")
         if [ $answer == "Y" ]; then
-           choose_project
-          else
-           echo "Nothing to do here..."
-           exit
+          choose_project
+        else
+          return 0
+          exit;
         fi
+      fi
+
+      else choose_project
     fi
     break;
   done
@@ -165,8 +169,13 @@ read_directory "${strappybootstrap_dir}"
 # Check if there are any bootstrap projects found
 bootstraps_found "${strappybootstrap_dir}"
 
-# Ask the user to chose a bootstrap project
+# Ask the user to choose a bootstrap project
 CONFIRMED_PROJECT=$(choose_project)
+
+# Check if there is a project selected
+if [ ! $CONFIRMED_PROJECT ]; then
+  exit;
+fi
 
 # Ask the user if the current path is the correct project path
 answer=$(ask_confirmation "Do you want to bootstrap at the current path?${NEWLINE}Location: ${_mydir}")

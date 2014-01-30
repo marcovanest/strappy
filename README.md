@@ -12,6 +12,14 @@ I wrote this shell script because I got tired of copy pasting Vagrantfile config
 
 Strappy is a simple shell script that runs from the command line. What it basically does is scanning a pre-determined bootstrap directory for vagrant projects. If Strappy finds any projects inside the given strappy project directory it will ask the user to make a choice which bootstrap project s/he wants to bootstrap. During the bootstrapping Strappy will ask the user for some simple questions in order to determine what the user actually wants.
 
+During the process the following actions are executed
+
+* Copy all files and folders recursively over to the new project
+* Parses the Vagrantfile and extract the manifest and module paths, if they are not present inside the project folder they will be created
+   The same goes for the manifests files.
+* Asks the user to vagrant up
+* Asks the user to git init
+
 The end result is a fully bootstrapped vagrant project within seconds!
 
 ## Setting it up

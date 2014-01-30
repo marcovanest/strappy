@@ -14,7 +14,7 @@ function read_directory(){
   OLDIFS=$IFS
   IFS=$'\n'
 
-  DIR="${1%/}/strapps"
+  DIR="${1%/}/vagrantstrapps"
   if [ -d $DIR ]; then
     # Read project directories into array
     for file in ${DIR}/*; do
@@ -32,16 +32,7 @@ function bootstraps_found(){
     BOOTSTRAP_DIR=$1
   else
     echo "No bootstrap projects found"
-    answer=$(ask_confirmation "Do you want to specify a directory with bootstrap projects?")
-    if [ $answer == "Y" ]; then
-      BOOTSTRAP_DIR=$(ask_directory "Please enter your bootstrap directory: ")
-
-      read_directory "${BOOTSTRAP_DIR}"
-      bootstraps_found "${BOOTSTRAP_DIR}"
-    else
-      echo "Sadly no one want to play with me :("
-      exit;
-    fi
+    exit;
   fi
 }
 
@@ -124,14 +115,55 @@ function change_directory(){
 
 # BEGIN SCRIPT
 
+# Check if the Strappy config file exists, if not create it
+if [ ! -f ~/.strappy_config ]; then
+  create_file ~/.strappy_config
+  write_file ~/.strappy_config "strappybootstrap_dir=\"\""
+  echo "Created the Strappy config file"
+fi
+
+source ~/.strappy_config
+
+# Check if there is a StrappyBootstrap directory present in the User folder, if not create it
+if [ $strappybootstrap_dir == "" ] && [ ! -d "$HOME/StrappyBootstrap" ]; then
+  answer=$(ask_confirmation "Strappy did not found a StrappyBootstrap directory. Do you want to create one in your user dir?")
+
+  if [ $answer == "Y" ]; then
+    create_directory $HOME/StrappyBootstrap
+    StrappyBootstrapFolder=$HOME
+  else
+    answer=$(ask_confirmation "Do you want to create the StrappyBootstrap dir at another location?")
+
+    if [ $answer == "Y" ]; then
+      PATH=$(ask_directory "Please enter the path: ")
+      create_directory $PATH/StrappyBootstrap
+      StrappyBootstrapFolder=$PATH
+      else
+      echo "Sadly no one want to play with me :("
+      exit;
+    fi
+  fi
+
+  write_file ~/.strappy_config "strappybootstrap_dir=\"${StrappyBootstrapFolder}/StrappyBootstrap\""
+  echo "StrappyBootstrap dir created at ${StrappyBootstrapFolder}/StrappyBootstrap"
+
+  # Create the vagrantstrapps folder
+  if [ ! -d "$StrappyBootstrapFolder/StrappyBootstrap/vagrantstrapps" ]; then
+    create_directory $StrappyBootstrapFolder/StrappyBootstrap/vagrantstrapps
+    echo "Created vagrantstrapps folder. This is the directory where you place all your bootstrap projects"
+  fi
+fi
+
 PROJECTS=()
 BOOTSTRAP_DIR=''
 
+source ~/.strappy_config
+
 # Check the current working directory for bootstrap projects
-read_directory "${_mydir}"
+read_directory "${strappybootstrap_dir}"
 
 # Check if there are any bootstrap projects found
-bootstraps_found "${_mydir}"
+bootstraps_found "${strappybootstrap_dir}"
 
 # Ask the user to chose a bootstrap project
 CONFIRMED_PROJECT=$(choose_project)
@@ -150,13 +182,13 @@ if [ -f "${BOOTSTRAP_PROJECT_PATH}/.strappy" ]; then
   echo "Strappy found"
 else
   # Copy the bootstrap project file to the given project directory
-  cp -r ${BOOTSTRAP_DIR%/}/strapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
+  cp -r ${BOOTSTRAP_DIR%/}/vagrantstrapps/${CONFIRMED_PROJECT%/}/. $BOOTSTRAP_PROJECT_PATH/
 
   # Create strappy file, this file will be used to check if a directory already is bootstrapped by strappy
   create_file $BOOTSTRAP_PROJECT_PATH/.strappy
 
   # Write the bootstrap project into the strappy file
-  write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}strapps/${CONFIRMED_PROJECT}
+  write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}vagrantstrapps/${CONFIRMED_PROJECT}
 fi
 
 # Change directory to the project dir

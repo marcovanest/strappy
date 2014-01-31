@@ -227,59 +227,60 @@ else
   write_file $BOOTSTRAP_PROJECT_PATH/.strappy ${BOOTSTRAP_DIR}vagrantstrapps/${CONFIRMED_PROJECT}
 fi
 
-# Change directory to the project dir
-change_directory ${BOOTSTRAP_PROJECT_PATH}
-
 # Check if Vagrantfile is present
-if [ -f "Vagrantfile" ]; then
+if [ -f "${BOOTSTRAP_PROJECT_PATH}/Vagrantfile" ]; then
 
   # Extract the defined machine blocks into temporary files, so they can parsed separately
-  `/usr/bin/awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0}' Vagrantfile`
+  totalblockfounds=`/usr/bin/awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0} END { print i }' Vagrantfile`
 
-  for file in $(/usr/bin/find . -type f -name 'block*' -exec /usr/bin/basename {} \;) ; do
+  if [ $totalblockfounds > 0 ]; then
 
-    # Search the Vagrantfile for module dirs and check if they exist, if not create them
-    unset RESULTS
-    RESULTS=()
-    search_file 'module_path' $file
-    for MODULE_PATH in $RESULTS; do
-      if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MODULE_PATH" ]; then
-        create_directory $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
+    for file in $(/usr/bin/find ${BOOTSTRAP_PROJECT_PATH}/ -type f -name 'block*' -exec /usr/bin/basename {} \;) ; do
 
-        echo "Module path ${BOOTSTRAP_PROJECT_PATH}/${MODULE_PATH} created"
-      fi
+      # Search the Vagrantfile for module dirs and check if they exist, if not create them
+      unset RESULTS
+      RESULTS=()
+      search_file 'module_path' $file
+      for MODULE_PATH in $RESULTS; do
+        if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MODULE_PATH" ]; then
+          create_directory $BOOTSTRAP_PROJECT_PATH/$MODULE_PATH
+
+          echo "Module path ${BOOTSTRAP_PROJECT_PATH}/${MODULE_PATH} created"
+        fi
+      done
+
+      # Search the Vagrantfile for manifests dirs and check if they exist, if not create them
+      unset RESULTS
+      RESULTS=()
+      search_file 'manifests_path' $file
+      for MANIFEST_PATH in $RESULTS; do
+        if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH" ]; then
+          create_directory $BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH
+
+          echo "Manifest path ${BOOTSTRAP_PROJECT_PATH}/${MANIFEST_PATH} created"
+        fi
+      done
+
+      MANIFEST_PATH=$RESULTS
+
+      # Search the Vagrantfile for manifests files and check if they exist, if not create them
+      unset RESULTS
+      RESULTS=()
+      search_file 'manifest_file' $file
+      for MANIFEST_FILE in $RESULTS; do
+        if [ ! -f "$MANIFEST_PATH/$MANIFEST_FILE" ]; then
+          create_file $MANIFEST_PATH/$MANIFEST_FILE
+
+          echo "Manifest file ${MANIFEST_PATH}/${MANIFEST_FILE} created"
+        fi
+      done
+
+      # Remove the temporary block file when done parsing
+      remove_file $file
+
     done
 
-    # Search the Vagrantfile for manifests dirs and check if they exist, if not create them
-    unset RESULTS
-    RESULTS=()
-    search_file 'manifests_path' $file
-    for MANIFEST_PATH in $RESULTS; do
-      if [ ! -d "$BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH" ]; then
-        create_directory $BOOTSTRAP_PROJECT_PATH/$MANIFEST_PATH
-
-        echo "Manifest path ${BOOTSTRAP_PROJECT_PATH}/${MANIFEST_PATH} created"
-      fi
-    done
-
-    MANIFEST_PATH=$RESULTS
-
-    # Search the Vagrantfile for manifests files and check if they exist, if not create them
-    unset RESULTS
-    RESULTS=()
-    search_file 'manifest_file' $file
-    for MANIFEST_FILE in $RESULTS; do
-      if [ ! -f "$MANIFEST_PATH/$MANIFEST_FILE" ]; then
-        create_file $MANIFEST_PATH/$MANIFEST_FILE
-
-        echo "Manifest file ${MANIFEST_PATH}/${MANIFEST_FILE} created"
-      fi
-    done
-
-    # Remove the temporary block file when done parsing
-    remove_file $file
-
-  done
+  fi
 
   # Ask the user to vagrant up or not
   answer=$(ask_confirmation "Do you want to vagrant up?")
@@ -289,6 +290,7 @@ if [ -f "Vagrantfile" ]; then
   fi
 fi
 
+# Check if there is a Git repository present in the bootstrap project
 if [ -d ".git" ]; then
   answer=$(ask_confirmation "Git repository found. Do want to create a new one?")
 

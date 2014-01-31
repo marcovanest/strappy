@@ -204,24 +204,8 @@ fi
 # Change directory to the project dir
 change_directory ${BOOTSTRAP_PROJECT_PATH}
 
-# Check if the bootstrapped project is a vagrant project
-if [ -f "Vagrantfile" ]; then
-
-  # Ask the user to vagrant up or not
-  answer=$(ask_confirmation "Vagrantfile found. Do you want to vagrant up?")
-
-  if [ $answer == "Y" ]; then
-    /usr/bin/vagrant up
-  fi
-
-  VAGRANT_PRESENT="Y"
-
-else
-  VAGRANT_PRESENT="N"
-fi
-
 # Check if Vagrantfile is present
-if [ $VAGRANT_PRESENT == "Y" ]; then
+if [ -f "Vagrantfile" ]; then
 
   # Extract the defined machine blocks into temporary files, so they can parsed separately
   `/usr/bin/awk '/config.vm.define[[:space:]]\"[a-z]*\"[[:space:]]do[[:space:]]\|[a-zA-Z_]*\|/ {f=1; i++} f{print $0 > ("block"i)} /end/ {f=0}' Vagrantfile`
@@ -267,9 +251,16 @@ if [ $VAGRANT_PRESENT == "Y" ]; then
     done
 
   done
-fi
 
-echo "Done with parsing Vagrantfile"
+  echo "Done with parsing Vagrantfile"
+
+  # Ask the user to vagrant up or not
+  answer=$(ask_confirmation "Do you want to vagrant up?")
+
+  if [ $answer == "Y" ]; then
+    /usr/bin/vagrant up
+  fi
+fi
 
 # Check if git is installed
 /usr/bin/git --version 2>&1 >/dev/null

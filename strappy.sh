@@ -117,6 +117,32 @@ function change_directory(){
   cd $1
 }
 
+function remove_file() {
+  /bin/rm $1
+}
+
+function remove_directory(){
+  /bin/rm -rf $1
+}
+
+function git_init(){
+
+  # Check if git is installed
+  /usr/bin/git --version 2>&1 >/dev/null
+  GIT=$?
+
+  if [ $GIT -eq 0 ]; then
+
+    /usr/bin/git init 2>&1 >/dev/null;
+
+    # Check if the git repository is correctly initialized
+    SUCCES=$?
+    if [ $SUCCES -eq 0 ]; then
+      echo "Initialized empty Git repository"
+    fi
+  fi
+}
+
 # BEGIN SCRIPT
 
 # Check if the Strappy config file exists, if not create it
@@ -250,9 +276,10 @@ if [ -f "Vagrantfile" ]; then
       fi
     done
 
-  done
+    # Remove the temporary block file when done parsing
+    remove_file $file
 
-  echo "Done with parsing Vagrantfile"
+  done
 
   # Ask the user to vagrant up or not
   answer=$(ask_confirmation "Do you want to vagrant up?")
@@ -262,20 +289,18 @@ if [ -f "Vagrantfile" ]; then
   fi
 fi
 
-# Check if git is installed
-/usr/bin/git --version 2>&1 >/dev/null
-GIT=$?
+if [ -d ".git" ]; then
+  answer=$(ask_confirmation "Git repository found. Do want to create a new one?")
 
-if [ $GIT -eq 0 ]; then
+  if [ $answer == "Y" ]; then
+    remove_directory ${BOOTSTRAP_PROJECT_PATH}/.git
+    git_init
+  fi
+
+else
   # Ask the user to create a git repository
   answer=$(ask_confirmation "Do you want to create a git repository")
   if [ $answer == "Y" ]; then
-    /usr/bin/git init 2>&1 >/dev/null;
-
-    # Check if the git repository is correctly initialized
-    SUCCES=$?
-    if [ $SUCCES -eq 0 ]; then
-      echo "Initialized empty Git repository"
-    fi
+    git_init
   fi
 fi
